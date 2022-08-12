@@ -14,23 +14,28 @@ pip install opencv-python
 
 #### TGI (Triangular Greeness Index)
 ------------------------------------
-![](README.image/SpectralIndexFormulaTGI.gif)
+
+$$ TGI = { (\lambda_{Red}-\lambda_{Blue})(\rho_{Red}-\rho_{Green}) - (\lambda_{Red}-\lambda_{Green})(\rho_{Red}-\rho_{Blue}) \over 2} $$
 
 #### VARI (Visible Atmospheric Resistant Index)
 ------------------------------------
-![](README.image/SpectralIndexFormulaVARI.gif)
+$$ VARI = { Green-Red \over Green+Red-Blue} $$
 
 #### GLI(Green Leaf Index)
 ------------------------------------
-![](README.image/SpectralIndexFormulaGLI.gif)
+
+$$ GLI = { (Green-Red) + (Grren-Blue) \over (2*Green)+Red+Blue} $$
 
 #### VIgreen(Visible Atmospherically Resistant Indices Green)
 ------------------------------------
-![](README.image/SpectrallIndexFormulaVIgreen.png)
+
+$$ VI_{Green} = { R_{green} - R_{red} \over R_{green} + R_{red}} $$
 
 #### vNDVI(visible NDVI)
 ------------------------------------
-![](README.image/SpectrallIndexFormulaVNDVI.png)
+
+$$ vNDVI = F (camera, red, green, blue) = C ∗ (red^{w1} ∗ green^{w2} ∗ blue^{w3}) $$
+
 
 ## Reference
 
