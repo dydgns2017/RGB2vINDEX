@@ -5,16 +5,10 @@ import os, glob
 import numpy as np
 
 
-np.seterr(divide='ignore', invalid='ignore')
-parser = argparse.ArgumentParser(prog="RGB2GREEN.py")
-parser.add_argument("--generate", type=str)
-parser.add_argument("--datasets", type=str)
-opt = parser.parse_args()
-
-def RGB2VARI(images):
+def RGB2VARI(images): # O
     VARI_images = []
     for img in images:
-        image = cv.imread(f"{img}", cv.IMREAD_UNCHANGED)
+        image = cv.imread(f"{img}", cv.IMREAD_UNCHANGED).astype("float64")
         R,G,B = splitChannel(image)
         VARI = (G-R) / (G+R-B)
         VARI_images.append(VARI)
@@ -31,7 +25,8 @@ def RGB2VARI(images):
 #     return TGI_images
 # 참고 : https://github.com/bethanysprag/TriangularGreenness/blob/master/tgi.py
 
-def RGB2GLI(images):
+def RGB2GLI(images): # O
+    # images : list
     GLI_images = []
     for img in images:
         image = cv.imread(f"{img}", cv.IMREAD_UNCHANGED).astype('float64')
@@ -40,7 +35,7 @@ def RGB2GLI(images):
         GLI_images.append(GLI)
     return GLI_images
 
-def RGB2VIgreen(images):
+def RGB2VIgreen(images): # O
     VIgreen_images = []
     for img in images:
         image = cv.imread(f"{img}", cv.IMREAD_UNCHANGED).astype('float64')
@@ -49,11 +44,13 @@ def RGB2VIgreen(images):
         VIgreen_images.append(VIgreen)
     return VIgreen_images
 
-def RGB2vNDVI(images):
+def RGB2vNDVI(images): # O
     vNDVI_images = []
     for img in images:
-        image = cv.imread(f"{img}", cv.IMREAD_UNCHANGED).astype('float64')
+        image = cv.imread(f"{img}", cv.IMREAD_UNCHANGED).astype("float64")
         R,G,B = splitChannel(image)
+        R = np.where(R==0, 1, R)
+        B = np.where(B==0, 1, B)
         vNDVI = 0.5268*((R**-0.1294) * (G**0.3389) * (B**-0.3118))
         vNDVI_images.append(vNDVI)
     return vNDVI_images
@@ -95,9 +92,15 @@ def main(F, DATASET_PATH):
     images = getImages(DATASET_PATH)
     images_convert = globals()[f"RGB2{F}"](images)
     merge_files = mergeChannel(images, images_convert)
+    print(merge_files[0])
     fileSave(merge_files, images_convert)
     
 if __name__ == "__main__":
+    np.seterr(divide='ignore', invalid='ignore')
+    parser = argparse.ArgumentParser(prog="RGB2GREEN.py")
+    parser.add_argument("--generate", type=str)
+    parser.add_argument("--datasets", type=str)
+    opt = parser.parse_args()
     F = opt.generate
     D = os.path.join("./", opt.datasets) # relative path
     assert F in ["TGI", "VARI", "GLI" , "VIgreen", "vNDVI"], "not founded generate option, --generate TGI|VARI|GLI|VIgreen|vNDVI"

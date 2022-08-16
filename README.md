@@ -40,11 +40,8 @@ $$ vNDVI = F (camera, red, green, blue) = C ∗ (red^{w1} ∗ green^{w2} ∗ blu
 
 ```bash
 # python RGB2GREEN.py --generate TGI|VARI|GLI|VIgreen|vNDVI --dataset dataset, relative path
-python RGB2GREEN.py --generate TGI --datasets dataset
+python RGB2GREEN.py --generate GLI --datasets dataset
 ```
-
-## Output
-
 
 ## Reference
 
