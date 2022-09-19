@@ -5,7 +5,8 @@ import os, glob
 import numpy as np
 
 
-def RGB2VARI(images): # O
+def RGB2VARI(images):
+    # range : -1 ~ 1
     VARI_images = []
     for img in images:
         image = cv.imread(f"{img}", cv.IMREAD_UNCHANGED).astype("float64")
@@ -14,19 +15,8 @@ def RGB2VARI(images): # O
         VARI_images.append(VARI)
     return VARI_images
 
-# def RGB2TGI(images):
-#     TGI_images = []
-#     for img in images:
-#         image = cv.imread(f"{img}", cv.IMREAD_UNCHANGED).astype('float64')
-#         R,G,B = splitChannel(image)
-#         TGI = 
-#         print(TGI.shape)
-#         TGI_images.append(TGI)
-#     return TGI_images
-# 참고 : https://github.com/bethanysprag/TriangularGreenness/blob/master/tgi.py
-
-def RGB2GLI(images): # O
-    # images : list
+def RGB2GLI(images):
+    # range : -1 ~ 1
     GLI_images = []
     for img in images:
         image = cv.imread(f"{img}", cv.IMREAD_UNCHANGED).astype('float64')
@@ -35,7 +25,16 @@ def RGB2GLI(images): # O
         GLI_images.append(GLI)
     return GLI_images
 
-def RGB2VIgreen(images): # O
+def RGB2TGI(images):
+    TGI_images = []
+    for img in images:
+        image = cv.imread(f"{img}", cv.IMREAD_UNCHANGED).astype('float64')
+        R,G,B = splitChannel(image)
+        TGI = (G - 0.39) * (R - 0.61) * B
+        TGI_images.append(TGI)
+    return TGI_images
+
+def RGB2VIgreen(images):
     VIgreen_images = []
     for img in images:
         image = cv.imread(f"{img}", cv.IMREAD_UNCHANGED).astype('float64')
