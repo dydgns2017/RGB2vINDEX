@@ -1,12 +1,10 @@
 import argparse
-from posixpath import split
 import cv2 as cv
 import os, glob
 import numpy as np
 
 
 def RGB2VARI(images):
-    # range : -1 ~ 1
     VARI_images = []
     for img in images:
         image = cv.imread(f"{img}", cv.IMREAD_UNCHANGED).astype("float64")
@@ -16,7 +14,6 @@ def RGB2VARI(images):
     return VARI_images
 
 def RGB2GLI(images):
-    # range : -1 ~ 1
     GLI_images = []
     for img in images:
         image = cv.imread(f"{img}", cv.IMREAD_UNCHANGED).astype('float64')
@@ -30,7 +27,8 @@ def RGB2TGI(images):
     for img in images:
         image = cv.imread(f"{img}", cv.IMREAD_UNCHANGED).astype('float64')
         R,G,B = splitChannel(image)
-        TGI = (G - 0.39) * (R - 0.61) * B
+        TGI = (-1) * 0.5 ((200*(R-G))-(100 * (R-B)))
+        # TGI = (G - 0.39) * (R - 0.61) * B
         TGI_images.append(TGI)
     return TGI_images
 
@@ -43,7 +41,7 @@ def RGB2VIgreen(images):
         VIgreen_images.append(VIgreen)
     return VIgreen_images
 
-def RGB2vNDVI(images): # O
+def RGB2vNDVI(images):
     vNDVI_images = []
     for img in images:
         image = cv.imread(f"{img}", cv.IMREAD_UNCHANGED).astype("float64")
@@ -86,6 +84,7 @@ def mergeChannel(images, images_convert):
         merge_image = cv.merge((B,G,R,P))
         merge_files.append(merge_image)
     return merge_files
+
 
 def main(F, DATASET_PATH):
     images = getImages(DATASET_PATH)
