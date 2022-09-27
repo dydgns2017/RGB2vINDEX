@@ -1,13 +1,16 @@
 import argparse
-import cv2 as cv
 import os, glob
+vipshome = "vips-dev-8.12\\bin"
+os.environ['PATH'] = vipshome + ';' + os.environ['PATH']
 import numpy as np
-
+import pyvips
+from lib.colormaps import RdYlGn_lut
+from lib.common import *
 
 def RGB2VARI(images):
     VARI_images = []
     for img in images:
-        image = cv.imread(f"{img}", cv.IMREAD_UNCHANGED).astype("float64")
+        image = pyvips.Image.new_from_file(f"{img}")
         R,G,B = splitChannel(image)
         VARI = (G-R) / (G+R-B)
         VARI_images.append(VARI)
@@ -16,26 +19,25 @@ def RGB2VARI(images):
 def RGB2GLI(images):
     GLI_images = []
     for img in images:
-        image = cv.imread(f"{img}", cv.IMREAD_UNCHANGED).astype('float64')
+        image = pyvips.Image.new_from_file(f"{img}")
         R,G,B = splitChannel(image)
-        GLI = (G-R)+(G-B) / (2*G)+R+B
+        GLI = (2.0 * G - R - B) / (2.0 * G + R + B)
         GLI_images.append(GLI)
     return GLI_images
 
 def RGB2TGI(images):
     TGI_images = []
     for img in images:
-        image = cv.imread(f"{img}", cv.IMREAD_UNCHANGED).astype('float64')
+        image = pyvips.Image.new_from_file(f"{img}")
         R,G,B = splitChannel(image)
-        TGI = (-1) * 0.5 ((200*(R-G))-(100 * (R-B)))
-        # TGI = (G - 0.39) * (R - 0.61) * B
+        TGI = -0.5 * (190 * (R - G) - 120 * (R - B))
         TGI_images.append(TGI)
     return TGI_images
 
 def RGB2VIgreen(images):
     VIgreen_images = []
     for img in images:
-        image = cv.imread(f"{img}", cv.IMREAD_UNCHANGED).astype('float64')
+        image = pyvips.Image.new_from_file(f"{img}")
         R,G,B = splitChannel(image)
         VIgreen = (G-R)/(G+R)
         VIgreen_images.append(VIgreen)
@@ -44,25 +46,24 @@ def RGB2VIgreen(images):
 def RGB2vNDVI(images):
     vNDVI_images = []
     for img in images:
-        image = cv.imread(f"{img}", cv.IMREAD_UNCHANGED).astype("float64")
+        image = pyvips.Image.new_from_file(f"{img}")
         R,G,B = splitChannel(image)
-        R = np.where(R==0, 1, R)
-        B = np.where(B==0, 1, B)
         vNDVI = 0.5268*((R**-0.1294) * (G**0.3389) * (B**-0.3118))
         vNDVI_images.append(vNDVI)
     return vNDVI_images
 
-def fileSave(merge_files, files):
+def fileSave(convert, origin):
     OUT = os.path.join("./", "output")
     if ( not os.path.exists(OUT) ):
         os.mkdir(OUT)
     MERGE = os.path.join("./", "merge")
     if ( not os.path.exists(MERGE) ):
         os.mkdir(MERGE)
-    for i,img in enumerate(files):
-        cv.imwrite(f"{OUT}/{i+1}.jpg", img)
-    for i,img in enumerate(merge_files):
-        cv.imwrite(f"{MERGE}/{i+1}.png", img)
+    for i,img in enumerate(convert):
+        img.write_to_file(f"{OUT}/{i+1}.jpg")
+    # for i,img in enumerate(origin):
+    #     print(convert[i])
+    #     img.bandjoin(convert[i]).write_to_file(f"{OUT}/{i+1}.jpg")
 
 def getImages(DATASET_PATH):
     types = ('*.png', '*.jpg', '*.jpeg') # the tuple of file types
@@ -72,26 +73,28 @@ def getImages(DATASET_PATH):
     return files_grabbed
 
 def splitChannel(image):
-    B,G,R = cv.split(image)
+    R,G,B = image.bandsplit()
     return (R,G,B)
 
-def mergeChannel(images, images_convert):
-    merge_files = []
-    for i,img in enumerate(images):
-        src_image = cv.imread(img).astype("float64")
-        R,G,B = splitChannel(src_image)
-        P = images_convert[i]
-        merge_image = cv.merge((B,G,R,P))
-        merge_files.append(merge_image)
-    return merge_files
-
+def applyIndex(images, convert):
+    # normalize
+    histograms = [result_histogram(image) for image in convert]
+    results = []
+    for i, img in enumerate(histograms):
+        min_max = find_clipped_min_max(img, convert[i].min(), convert[i].max())
+        nmin = min_max['nmin']
+        nmax = min_max['nmax']
+        result = ((convert[i]-nmin) / (nmax-nmin)) * 256
+        ####################################
+        # rdylgn_image = pyvips.Image.new_from_array(RdYlGn_lut).bandfold()
+        # result = result.maplut(rdylgn_image)
+        results.append( result )
+    return results
 
 def main(F, DATASET_PATH):
     images = getImages(DATASET_PATH)
     images_convert = globals()[f"RGB2{F}"](images)
-    merge_files = mergeChannel(images, images_convert)
-    print(merge_files[0])
-    fileSave(merge_files, images_convert)
+    fileSave(applyIndex(images, images_convert), images)
     
 if __name__ == "__main__":
     np.seterr(divide='ignore', invalid='ignore')
