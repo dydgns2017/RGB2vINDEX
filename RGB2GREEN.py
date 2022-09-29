@@ -1,9 +1,10 @@
 import argparse
 import os, glob
-vipshome = "vips-dev-8.12\\bin"
+vipshome = "vips-dev-8.12\\bin" ## u will be modify this line
 os.environ['PATH'] = vipshome + ';' + os.environ['PATH']
 import numpy as np
 import pyvips
+import cv2
 from lib.colormaps import RdYlGn_lut
 from lib.common import *
 
@@ -60,10 +61,20 @@ def fileSave(convert, origin):
     if ( not os.path.exists(MERGE) ):
         os.mkdir(MERGE)
     for i,img in enumerate(convert):
-        img.write_to_file(f"{OUT}/{i+1}.jpg")
-    # for i,img in enumerate(origin):
-    #     print(convert[i])
-    #     img.bandjoin(convert[i]).write_to_file(f"{OUT}/{i+1}.jpg")
+        ## visualization
+        rdylgn_image = pyvips.Image.new_from_array(RdYlGn_lut).bandfold()
+        result = img.maplut(rdylgn_image)
+        result.write_to_file(f"{OUT}/{i+1}.jpg")
+    for i,img in enumerate(origin): ## image channel merge
+        img = cv2.imread(img, cv2.IMREAD_UNCHANGED).astype("uint8")
+        B,G,R = cv2.split(img)
+        convert_image = np.asarray(convert[i]).astype("uint8")
+        merge = np.dstack((B,G,R, convert_image, R)) ## numpy channel merge
+        if (merge.shape[-1]>=4):
+            ## npy save
+            np.save(f"{MERGE}/{i+1}.npy", merge, allow_pickle=True)
+        else:
+            cv2.imwrite(f"{MERGE}/{i+1}.png", merge)
 
 def getImages(DATASET_PATH):
     types = ('*.png', '*.jpg', '*.jpeg') # the tuple of file types
@@ -77,7 +88,7 @@ def splitChannel(image):
     return (R,G,B)
 
 def applyIndex(images, convert):
-    # normalize
+    # normalization
     histograms = [result_histogram(image) for image in convert]
     results = []
     for i, img in enumerate(histograms):
@@ -85,10 +96,7 @@ def applyIndex(images, convert):
         nmin = min_max['nmin']
         nmax = min_max['nmax']
         result = ((convert[i]-nmin) / (nmax-nmin)) * 256
-        ####################################
-        # rdylgn_image = pyvips.Image.new_from_array(RdYlGn_lut).bandfold()
-        # result = result.maplut(rdylgn_image)
-        results.append( result )
+        results.append(result)
     return results
 
 def main(F, DATASET_PATH):

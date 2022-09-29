@@ -6,8 +6,9 @@ RGB image to vINDEX, vINDEX = {TGI, GLI, VARY, VIgreen, vNDVI}
 
 ```
 conda create -n vINDEX python=3.9
-condas activate vINDEX
-pip install opencv-python
+conda activate vINDEX
+conda install -c conda-forge opencv
+pip install numpy pyvips ## have to install vips-dev lib
 ```
 
 ## Equation of vINDEX
@@ -48,3 +49,5 @@ python RGB2GREEN.py --generate GLI --datasets dataset
 - https://www.l3harrisgeospatial.com/docs/broadbandgreenness.html
 - https://github.com/OpenDroneMap/WebODM
 - https://www.sciencedirect.com/science/article/pii/S016816991932383X
+- https://gitmemories.com/awesome-spectral-indices/awesome-spectral-indices
+- https://github.com/dirceu-jr/pyvips-NDVI-and-VARI/blob/master/colormaps.py
