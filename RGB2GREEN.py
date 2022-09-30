@@ -70,7 +70,7 @@ def fileSave(convert, origin):
         B,G,R = cv2.split(img)
         convert_image = np.asarray(convert[i]).astype("uint8")
         merge = np.dstack((B,G,R, convert_image)) ## numpy channel merge
-        if (merge.shape[-1]>=4):
+        if (merge.shape[-1]>=5):
             ## npy save
             np.save(f"{MERGE}/{i+1}.npy", merge, allow_pickle=True)
         else:
