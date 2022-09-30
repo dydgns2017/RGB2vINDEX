@@ -69,7 +69,7 @@ def fileSave(convert, origin):
         img = cv2.imread(img, cv2.IMREAD_UNCHANGED).astype("uint8")
         B,G,R = cv2.split(img)
         convert_image = np.asarray(convert[i]).astype("uint8")
-        merge = np.dstack((B,G,R, convert_image, R)) ## numpy channel merge
+        merge = np.dstack((B,G,R, convert_image)) ## numpy channel merge
         if (merge.shape[-1]>=4):
             ## npy save
             np.save(f"{MERGE}/{i+1}.npy", merge, allow_pickle=True)
@@ -87,7 +87,7 @@ def splitChannel(image):
     R,G,B = image.bandsplit()
     return (R,G,B)
 
-def applyIndex(images, convert):
+def applyIndex(convert):
     # normalization
     histograms = [result_histogram(image) for image in convert]
     results = []
