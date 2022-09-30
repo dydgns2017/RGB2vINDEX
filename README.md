@@ -8,7 +8,9 @@ RGB image to vINDEX, vINDEX = {TGI, GLI, VARY, VIgreen, vNDVI}
 conda create -n vINDEX python=3.9
 conda activate vINDEX
 conda install -c conda-forge opencv
-pip install numpy pyvips ## have to install vips-dev lib
+pip install numpy pyvips ## have to install vips-dev lib on window OS
+## Linux
+# apt install -y libvips
 ```
 
 ## Equation of vINDEX
